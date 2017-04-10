@@ -1,0 +1,6 @@
+[submodule "propbank-frames"]
+	path = propbank-frames
+	url = https://github.com/propbank/propbank-frames.git
+[submodule "Dictionary-Development-Kit"]
+	path = Dictionary-Development-Kit
+	url = https://github.com/SebastianSzturo/Dictionary-Development-Kit.git
