@@ -37,7 +37,7 @@ RM			=	/bin/rm
 
 all:
 	echo "Building Dict XML"
-	python build_dict.py
+	python build_dict.py "propbank-frames/frames/*.xml" $(DICT_SRC_PATH)
 	"$(DICT_BUILD_TOOL_BIN)/build_dict.sh" $(DICT_BUILD_OPTS) $(DICT_NAME) $(DICT_SRC_PATH) $(CSS_PATH) $(PLIST_PATH)
 	echo "Done."
 
