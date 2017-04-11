@@ -5,9 +5,11 @@ import itertools
 
 
 def parse_propbank_xml(frame_file):
+    # Load all the frames from frame_file
     for predicate in ET.parse(frame_file).findall('predicate'):
         for roleset in predicate.findall('roleset'):
             result = {}
+            # id in the XML uses name.##, but I like hyphens instead
             result['name'] = roleset.get('id').replace('_', '-').replace('.', '-')
             result['desc'] = roleset.get('name')
             result['lemma'] = predicate.get('lemma')
@@ -28,6 +30,7 @@ def parse_propbank_xml(frame_file):
                     'args': []
                 })
                 for arg in ex.findall('arg'):
+                    # The arg takes a number of different forms
                     if arg.get('f') == '':
                         if arg.get('n') is None:
                             result['examples'][-1]['args'].append({'name': ''})
@@ -40,12 +43,14 @@ def parse_propbank_xml(frame_file):
 
 
 def generate_dict_xml(output_file, frames):
+    # Writes an Apple dictionary file to output_file with the given frames
     ET.register_namespace('d', 'http://www.apple.com/DTDs/DictionaryService-1.0.rng')
     out = ET.ElementTree(ET.Element('d:dictionary'))
     out.getroot().set('xmlns', 'http://www.w3.org/1999/xhtml')
     out.getroot().set('xmlns:d', 'http://www.apple.com/DTDs/DictionaryService-1.0.rng')
 
     for frame in frames:
+        # General metadata
         entry = ET.SubElement(out.getroot(), 'd:entry')
         entry.set('id', frame['name'])
         entry.set('d:title', frame['name'])
@@ -56,6 +61,7 @@ def generate_dict_xml(output_file, frames):
         for alias in frame['aliases']:
             ET.SubElement(entry, 'd:index').set('d:value', alias)
 
+        # Name, description, roles
         ET.SubElement(entry, 'h1').text = frame['name']
         e = ET.SubElement(entry, 'div')
         e.text = frame['desc']
@@ -66,6 +72,7 @@ def generate_dict_xml(output_file, frames):
             ET.SubElement(dl, 'dt').text = role['name']
             ET.SubElement(dl, 'dd').text = role['desc']
         
+        # Examples
         d = ET.SubElement(entry, 'div')
         d.set('class', 'subtle')
         d.set('d:priority', '1')
@@ -88,23 +95,9 @@ if __name__ == '__main__':
     parser.add_argument('out_file', help='file path of output Apple Dictionary XML file.')
     args = parser.parse_args()
 
+    # Make a dictionary XML file from all the frames
     frames = itertools.chain(*(parse_propbank_xml(f) for f in glob(args.src_files)))
     generate_dict_xml(args.out_file, frames)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
